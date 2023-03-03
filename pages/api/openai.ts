@@ -2,11 +2,6 @@ import { Configuration, OpenAIApi } from "openai";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { AxiosError } from "axios";
 
-type Props = {
-  req: NextApiRequest;
-  res: NextApiResponse;
-};
-
 interface Error {
   message: string[];
   statusCode: number;
@@ -18,11 +13,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-export default async function OpenAi(props: Props) {
-  const { req, res } = props;
-  console.log(req);
-  console.log(res);
-
+export default async function OpenAi(req: NextApiRequest, res: NextApiResponse) {
   if (!configuration.apiKey) {
     res.status(500).json({
       error: {
@@ -45,7 +36,7 @@ export default async function OpenAi(props: Props) {
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: prompt,
+      prompt: promptSetting(prompt),
       temperature: 0.9,
       max_tokens: 600,
     });
@@ -68,4 +59,11 @@ export default async function OpenAi(props: Props) {
       });
     }
   }
+}
+
+function promptSetting(input: string) {
+  return `
+    回答するときは語尾に「にゃー」をつけてください
+    入力: ${input}
+  `;
 }
